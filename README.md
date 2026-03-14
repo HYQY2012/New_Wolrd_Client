@@ -1,6 +1,6 @@
 # **关于我**
 
-[官网][https://hyqy2012.github.io/New_Wolrd_Client/](https://hyqy2012.github.io/New_Wolrd_Client/)
+[官网][https://hyqy2012.github.io/New_World_Client/](https://hyqy2012.github.io/New_World_Client/)
 
 
 
