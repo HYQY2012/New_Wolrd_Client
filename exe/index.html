@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>贵阳市新世界学校</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI","Microsoft Yahei",sans-serif;-webkit-user-select:none;user-select:none}
+body{overflow:hidden;height:100vh;display:flex;flex-direction:column;background-color:#f8f9fa}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:48px;-webkit-app-region:drag;background:rgba(255,255,255,0.98);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,0.06);box-shadow:0 1px 3px rgba(0,0,0,0.04);color:#2d3748;z-index:100}
+.nav-controls{display:flex;align-items:center;gap:10px;-webkit-app-region:no-drag}
+.logo-container{display:flex;align-items:center;gap:10px}
+.school-logo{width:24px;height:24px;fill:#2d3748}
+.school-name{font-size:16px;font-weight:500;color:#2d3748}
+.nav-btn{width:38px;height:38px;border:none;border-radius:8px;background:transparent;color:#4a5568;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;font-size:16px;opacity:0.6;pointer-events:none}
+.nav-btn.active{opacity:1;pointer-events:all}
+.nav-btn:hover{background:rgba(0,0,0,0.05);color:#2d3748}
+.window-controls{display:flex;align-items:center;gap:1px;-webkit-app-region:no-drag}
+.window-btn{width:48px;height:48px;border:none;background:transparent;color:#4a5568;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;font-size:14px}
+.window-btn:hover{background:rgba(0,0,0,0.05)}
+.close-btn:hover{background:#e53e3e;color:white}
+.webview-container{flex:1;width:100%;border:none;background:#fff;z-index:10}
+.loading-overlay{position:absolute;top:48px;left:0;right:0;bottom:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:20px}
+.loading-spinner{width:48px;height:48px;border:4px solid #e2e8f0;border-top:4px solid #4299e1;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:#718096}
+.error-message{color:#e53e3e;text-align:center;padding:40px 20px;max-width:600px}
+.error-icon{font-size:64px;margin-bottom:20px;color:#e53e3e}
+.error-title{font-size:20px;font-weight:600;margin-bottom:10px}
+.error-desc{font-size:14px;color:#718096;margin-bottom:20px}
+.reload-btn{padding:10px 24px;background:#4299e1;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+.reload-btn:hover{background:#3182ce}
+.reload-btn.secondary{background:#718096;margin-left:10px}
+.about-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    display: none;
+    -webkit-app-region: drag;
+}
+.about-window-header {
+    height: 32px;
+    line-height: 32px;
+    padding: 0 12px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.about-window-title {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+.about-window-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    -webkit-app-region: no-drag;
+}
+.about-window-close:hover {
+    background: #e0e0e0;
+}
+.about-window-content {
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.about-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+    display: none;
+}
+.more-menu {
+    position: absolute;
+    top: 58px;
+    left: 20px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: none;
+    width: 180px;
+    overflow: hidden;
+}
+.more-menu-item {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+}
+.more-menu-item:hover {
+    background: #f5f5f5;
+}
+.more-menu-item i {
+    font-size: 16px;
+    color: #666;
+    width: 16px;
+    text-align: center;
+}
+.accessibility-active {
+    --accessibility-bg: #ffffff;
+    --accessibility-text: #000000;
+    --accessibility-border: #cccccc;
+}
+.image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    -webkit-app-region: no-drag;
+}
+.image-preview-container {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+}
+.image-preview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+.image-preview-close {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+.image-preview-close:hover {
+    background: #c53030;
+}
+</style>
+</head>
+<body>
+<div class="top-bar">
+    <div class="nav-controls">
+        <button class="nav-btn" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+        <button class="nav-btn" id="forwardBtn"><i class="fas fa-arrow-right"></i></button>
+        <button class="nav-btn active" id="homeBtn"><i class="fas fa-home"></i></button>
+        <button class="nav-btn active" id="refreshBtn"><i class="fas fa-refresh"></i></button>
+        <button class="nav-btn active" id="moreBtn"><i class="fas fa-ellipsis-v"></i></button>
+    </div>
+    <div class="logo-container">
+        <img src="logo.svg" class="school-logo" alt="logo">
+        <div class="school-name">贵阳市新世界学校</div>
+    </div>
+    <div class="window-controls">
+        <button class="window-btn minimize-btn" id="minimizeBtn"><i class="fas fa-minus"></i></button>
+        <button class="window-btn maximize-btn" id="maximizeBtn"><i class="fas fa-square"></i></button>
+        <button class="window-btn close-btn" id="closeBtn"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+
+<div class="more-menu" id="moreMenu">
+    <div class="more-menu-item" id="openInBrowserItem">
+        <i class="fas fa-external-link-alt"></i>
+        <span>浏览器中打开</span>
+    </div>
+    <div class="more-menu-item" id="accessibilityModeItem">
+        <i class="fas fa-universal-access"></i>
+        <span>辅助无障碍模式</span>
+    </div>
+    <div class="more-menu-item" id="aboutItem">
+        <i class="fas fa-info-circle"></i>
+        <span>关于</span>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在加载页面...</div>
+</div>
+
+<div class="image-preview-overlay" id="imagePreviewOverlay">
+    <div class="image-preview-container">
+        <img src="" alt="预览图片" class="image-preview" id="previewImage">
+        <button class="image-preview-close" id="imagePreviewClose"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+
+<webview id="mainWebview" class="webview-container" src="about:blank" nodeintegration disablewebsecurity hidecontextmenu></webview>
+
+<div class="about-overlay" id="aboutOverlay"></div>
+<div class="about-window" id="aboutWindow">
+    <div class="about-window-header">
+        <div class="about-window-title">关于</div>
+        <button class="about-window-close" id="aboutWindowClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="about-window-content" id="aboutWindowContent">
+        <img src="about.svg" alt="关于" id="aboutImage">
+    </div>
+</div>
+
+<script>
+const { ipcRenderer, shell } = require('electron');
+const backBtn = document.getElementById('backBtn');
+const forwardBtn = document.getElementById('forwardBtn');
+const homeBtn = document.getElementById('homeBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const moreBtn = document.getElementById('moreBtn');
+const moreMenu = document.getElementById('moreMenu');
+const openInBrowserItem = document.getElementById('openInBrowserItem');
+const accessibilityModeItem = document.getElementById('accessibilityModeItem');
+const aboutItem = document.getElementById('aboutItem');
+const minimizeBtn = document.getElementById('minimizeBtn');
+const maximizeBtn = document.getElementById('maximizeBtn');
+const closeBtn = document.getElementById('closeBtn');
+const mainWebview = document.getElementById('mainWebview');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const aboutWindow = document.getElementById('aboutWindow');
+const aboutOverlay = document.getElementById('aboutOverlay');
+const aboutWindowClose = document.getElementById('aboutWindowClose');
+const aboutImage = document.getElementById('aboutImage');
+const homeUrl = 'https://www.yzxsj.com';
+let loadAttempts = 0;
+const maxAttempts = 5;
+let isAccessibilityMode = false;
+const imagePreviewOverlay = document.getElementById('imagePreviewOverlay');
+const previewImage = document.getElementById('previewImage');
+const imagePreviewClose = document.getElementById('imagePreviewClose');
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+    if (e.ctrlKey && ['c','C','v','V','x','X','u','U','s','S'].includes(e.key)) e.preventDefault();
+    if (['F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'].includes(e.key)) e.preventDefault();
+    if (e.key === 'Escape') {
+        moreMenu.style.display = 'none';
+        closeAboutWindow();
+        closeImagePreview();
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('click', e => {
+    if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
+        moreMenu.style.display = 'none';
+    }
+});
+
+mainWebview.addEventListener('contextmenu', e => e.preventDefault());
+mainWebview.addEventListener('dom-ready', () => {
+    mainWebview.executeJavaScript(`
+        document.addEventListener('contextmenu', e=>e.preventDefault());
+        document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)e.preventDefault()});
+        const s=document.createElement('style');
+        s.textContent='::-webkit-scrollbar{display:none}::-webkit-media-controls{display:none}body{-webkit-user-select:none}';
+        document.head.appendChild(s);
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG' && !e.target.closest('a')) {
+                e.preventDefault();
+                window.electronAPI.openImagePreview(e.target.src);
+            }
+        });
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(img => {
+            img.style.cursor = 'pointer';
+            img.style.transition = 'opacity 0.2s';
+            img.addEventListener('mouseover', () => {
+                img.style.opacity = '0.9';
+            });
+            img.addEventListener('mouseout', () => {
+                img.style.opacity = '1';
+            });
+        });
+    `);
+    mainWebview.executeJavaScript(`
+        window.electronAPI = {
+            openImagePreview: function(src) {
+                ipcRenderer.send('open-image-preview', src);
+            }
+        };
+    `);
+    if (isAccessibilityMode) {
+        loadAccessibilityScript();
+    }
+});
+
+ipcRenderer.on('open-image-preview', (event, src) => {
+    openImagePreview(src);
+});
+
+mainWebview.addEventListener('did-fail-load', (e,ec,ed,url,isMain)=>{
+    if(isMain)return;
+    const rt = e.params.resourceType;
+    if(rt==='image'||rt==='media'){
+        const f=mainWebview.getWebContents().getFrameByRoutingId(e.params.routingId);
+        f?.executeJavaScript(`
+            document.querySelectorAll('img,video,audio').forEach(i=>{
+                if(i.src==='${url}'||i.currentSrc==='${url}'){
+                    i.src='404err.png';
+                    i.onerror=()=>i.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTAwIiByPSIxMCIgZmlsbD0iIzUyNTJTMCIvPjxwYXRoIGQ9Ik0xNzUgMTc1SDI1Yy0xMy44MDcgMC0yNS0xMS4xOTMtMjUtMjVWNTBDMjUgMzYuMTkzIDM2LjE5MyAyNSA1MCAyNWgxMDBDMTYzLjgwNyAyNSAxNzUgMzYuMTkzIDE3NSA1MFYxNTBDMTc1IDE2My44MDcgMTYzLjgwNyAxNzUgMTUwIDE3NVoiIGZpbGw9IiM1MjUyUzAiLz48L3N2Zz4=';
+                }
+            });
+        `);
+    }
+});
+
+function openImagePreview(src) {
+    previewImage.src = src;
+    imagePreviewOverlay.style.display = 'flex';
+}
+
+function closeImagePreview() {
+    imagePreviewOverlay.style.display = 'none';
+    previewImage.src = '';
+}
+
+function loadWebview(url){
+    loadAttempts=0;
+    loadingOverlay.style.display='flex';
+    function loadWithRetry(){
+        loadAttempts++;
+        mainWebview.src=url+'?t='+Date.now();
+        const h=()=>{loadingOverlay.style.display='none';loadAttempts=0;updateNav()};
+        const f=()=>{loadAttempts<maxAttempts?setTimeout(loadWithRetry,1500):(loadingOverlay.innerHTML=`
+            <div class="error-message"><div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="error-title">加载失败</div><div class="error-desc">请检查网络</div>
+            <button class="reload-btn" onclick="loadWebview('${homeUrl}')">重试</button></div>`)};
+        mainWebview.addEventListener('did-finish-load',h,{once:true});
+        mainWebview.addEventListener('did-fail-load',f,{once:true});
+    }
+    loadWithRetry();
+}
+
+function refreshWebview(){loadingOverlay.style.display='flex';mainWebview.reload();setTimeout(()=>loadingOverlay.style.display='none',800)}
+function updateNav(){
+    try{
+        backBtn.classList.toggle('active',mainWebview.canGoBack());
+        forwardBtn.classList.toggle('active',mainWebview.canGoForward());
+    }catch{backBtn.classList.remove('active');forwardBtn.classList.remove('active')}
+}
+
+function toggleMoreMenu(){
+    moreMenu.style.display = moreMenu.style.display === 'block' ? 'none' : 'block';
+}
+
+function openInBrowser(){
+    moreMenu.style.display = 'none';
+    const currentUrl = mainWebview.src.split('?')[0] || homeUrl;
+    shell.openExternal(currentUrl);
+}
+
+function loadAccessibilityScript(){
+    mainWebview.executeJavaScript(`
+        const script = document.createElement('script');
+        script.src = 'https://code.xn--vqq068m4ham0n.space/H_accessibility.js';
+        script.onload = function() {
+            console.log('无障碍脚本加载完成');
+        };
+        script.onerror = function() {
+            alert('无障碍脚本加载失败');
+        };
+        document.head.appendChild(script);
+    `);
+}
+
+function toggleAccessibilityMode(){
+    isAccessibilityMode = !isAccessibilityMode;
+    accessibilityModeItem.style.color = isAccessibilityMode ? '#4299e1' : '#333';
+    moreMenu.style.display = 'none';
+    loadingOverlay.style.display='flex';
+    if (isAccessibilityMode) {
+        mainWebview.reload();
+        mainWebview.addEventListener('did-finish-load', () => {
+            loadAccessibilityScript();
+            mainWebview.classList.add('accessibility-active');
+            loadingOverlay.style.display='none';
+        }, {once:true});
+    } else {
+        mainWebview.executeJavaScript(`
+            document.querySelectorAll('script[src*="H_accessibility.js"]').forEach(el => {
+                el.remove();
+            });
+        `);
+        mainWebview.reload();
+        mainWebview.addEventListener('did-finish-load', () => {
+            mainWebview.classList.remove('accessibility-active');
+            loadingOverlay.style.display='none';
+        }, {once:true});
+    }
+}
+
+function openAboutWindow(){
+    moreMenu.style.display = 'none';
+    const img = new Image();
+    img.src = 'about.svg';
+    img.onload = function(){
+        const imgWidth = img.width + 32;
+        const imgHeight = img.height + 48;
+        aboutWindow.style.width = imgWidth + 'px';
+        aboutWindow.style.height = imgHeight + 'px';
+        aboutImage.style.width = img.width + 'px';
+        aboutImage.style.height = img.height + 'px';
+        aboutOverlay.style.display = 'block';
+        aboutWindow.style.display = 'block';
+    };
+    img.onerror = function(){
+        aboutWindow.style.width = '300px';
+        aboutWindow.style.height = '200px';
+        aboutWindowContent.innerHTML = '<div style="text-align:center;color:#666;">无法加载关于图片</div>';
+        aboutOverlay.style.display = 'block';
+        aboutWindow.style.display = 'block';
+    };
+}
+
+function closeAboutWindow(){
+    aboutOverlay.style.display = 'none';
+    aboutWindow.style.display = 'none';
+}
+
+backBtn.onclick=()=>{mainWebview.goBack();loadingOverlay.style.display='flex';setTimeout(()=>loadingOverlay.style.display='none',500)}
+forwardBtn.onclick=()=>{mainWebview.goForward();loadingOverlay.style.display='flex';setTimeout(()=>loadingOverlay.style.display='none',500)}
+homeBtn.onclick=()=>loadWebview(homeUrl);
+refreshBtn.onclick=refreshWebview;
+moreBtn.onclick=toggleMoreMenu;
+openInBrowserItem.onclick=openInBrowser;
+accessibilityModeItem.onclick=toggleAccessibilityMode;
+aboutItem.onclick=openAboutWindow;
+aboutWindowClose.onclick=closeAboutWindow;
+aboutOverlay.onclick=closeAboutWindow;
+imagePreviewClose.onclick=closeImagePreview;
+imagePreviewOverlay.onclick=closeImagePreview;
+
+minimizeBtn.onclick=()=>ipcRenderer.send('window-minimize');
+maximizeBtn.onclick=()=>ipcRenderer.send('window-maximize');
+closeBtn.onclick=()=>ipcRenderer.send('window-close');
+
+ipcRenderer.on('window-maximized',(e,m)=>{
+    maximizeBtn.innerHTML=m?'<i class="fas fa-compress"></i>':'<i class="fas fa-square"></i>';
+});
+
+mainWebview.addEventListener('did-navigate',()=>{loadingOverlay.style.display='none';updateNav()});
+loadWebview(homeUrl);
+</script>
+</body>
+</html>
